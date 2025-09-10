@@ -13,8 +13,7 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { Shield, CheckCircle, User } from "lucide-react";
-import toast from "react-hot-toast";
-import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 // ✅ Zod Schema
 const signupSchema = z.object({
@@ -93,7 +92,7 @@ const SignupPage = () => {
       } else {
         const resData = await response.json();
         console.log("✅ Signup success:", resData);
-        toast.success("Signed up successfully");
+        toast.success(resData.message);
       }
     } catch (error) {
       console.error("❌ Signup error:", error);

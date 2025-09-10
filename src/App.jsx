@@ -5,6 +5,7 @@ import "./styles/App.css";
 import Navbar from "./components/government/Navbar";
 import Footer from "./components/government/Footer";
 import { Routes, Route } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 // Pages
 import LandingPage from "./pages/Landing-page";
@@ -22,13 +23,13 @@ function App() {
 
   return (
     <>
+      <Toaster />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         {/* <Route path="/project" element={<Project />} />
         <Route path="/contact" element={<Contact />} /> */}
         <Route path="/company/Signup" element={<SignupPage />} />
         {/* <Route path="/company/Signin" element={<SigninPage />} /> */}
-
 
         {/* protected Routes */}
         <Route path="/dashboard" element={<LandingPage />} />
