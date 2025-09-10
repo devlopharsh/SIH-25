@@ -14,6 +14,7 @@ import {
 } from "../../components/ui/select";
 import { Shield, CheckCircle, User } from "lucide-react";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 // ✅ Zod Schema
 const signupSchema = z.object({
@@ -67,34 +68,37 @@ const SignupPage = () => {
     },
   });
 
-  const onSubmit = async(data) => {
+  const onSubmit = async (data) => {
     try {
-    const formData = new FormData();
+      const formData = new FormData();
 
-    // Append fields
-    for (const key in data) {
-      formData.append(key, data[key]);
-    }
+      // Append fields
+      for (const key in data) {
+        formData.append(key, data[key]);
+      }
 
-    // Send POST request
-    const response = await axios.post("https://blue-carbon-server.onrender.com/api/company/send-otp", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data", // for file upload
-      },
-    });
+      // Send POST request with fetch
+      const response = await fetch(
+        "https://blue-carbon-server.onrender.com/api/company/send-otp",
+        {
+          method: "POST",
+          body: formData, // fetch handles multipart automatically
+        }
+      );
 
-    if(!response){
-        toast.error("error while logging");
-        console.log("error:", response.data);
+      if (!response.ok) {
+        const errData = await response.json();
+        toast.error("Error while logging");
+        console.log("❌ Error:", errData);
+      } else {
+        const resData = await response.json();
+        console.log("✅ Signup success:", resData);
+        toast.success("Signed up successfully");
+      }
+    } catch (error) {
+      console.error("❌ Signup error:", error);
+      alert("Signup failed! Check console for details.");
     }
-    else{
-        console.log("✅ Signup success:", response.data);
-        toast.success("signedup successfully");
-    }
-  } catch (error) {
-    console.error("❌ Signup error:", error);
-    alert("Signup failed! Check console for details.");
-  }
   };
 
   return (
@@ -129,7 +133,13 @@ const SignupPage = () => {
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               {/* Left Side */}
               <div className=" fixed text-center bottom-1/6 lg:text-center flex flex-col ">
-                <img src="/auth.gif" alt="auth" height={200} width={400} className="relative top-9"/>
+                <img
+                  src="/auth.gif"
+                  alt="auth"
+                  height={200}
+                  width={400}
+                  className="relative top-9"
+                />
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                   Company Registration
                 </h2>
@@ -476,19 +486,6 @@ const SignupPage = () => {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      {/* <footer className="bg-white border-t border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-gray-600">
-          <div>© 2025 Government of India</div>
-          <div className="flex items-center space-x-6">
-            <a href="#" className="hover:text-gray-900">
-              Privacy Policy
-            </a>
-            <span className="text-right">MOES, Govt of India</span>
-          </div>
-        </div>
-      </footer> */}
     </div>
   );
 };
