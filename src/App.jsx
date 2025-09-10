@@ -11,11 +11,16 @@ import toast, { Toaster } from "react-hot-toast";
 import ProtectedCompanyRoute from "./utils/middlewareCompany";
 import ProtectedGovernmentRoute from "./utils/middlewareGovernment";
 
+//components
+import DashBoard from "./components/Company/DashBoard";
+import Projects from "./components/Company/Projects";
+import AuditLogs from "./components/Company/Auditlogs";
+
 // Pages
 import LandingPage from "./pages/Landing-page";
 import SignupPage from "./pages/company/SignupPage";
 import SigninPage from "./pages/company/SigninPage";
-import Dashboard from "./pages/company/Dashboard";
+import Page from "./pages/company/Page";
 
 import SigninGovPage from "./pages/Government/SigninPage";
 
@@ -39,16 +44,24 @@ function App() {
         <Route path="/company/Signin" element={<SigninPage />} />
         <Route path="/Government/Signin" element={<SigninGovPage />} />
 
+        {/* protected Government Routes */}
+        <Route path="/Government/dashboard" element={<ProtectedGovernmentRoute>{/* <DashboardGovernment /> */}</ProtectedGovernmentRoute>}>
+
+        </Route>
+
         {/* protected Routes */}
-        {/* <Route path="/dashboard" element={<LandingPage />} /> */}
         <Route
-          path="/company/dashboard"
+          path="/company"
           element={
             <ProtectedCompanyRoute>
-              <Dashboard />
+              <Page />
             </ProtectedCompanyRoute>
           }
-        />
+        >
+          <Route path="/company/" element={<DashBoard/>}/> 
+          <Route path="/company/Audit" element={<AuditLogs/>}/>   
+          <Route path="/company/projectstatus" element={<Projects/>}/> 
+        </Route>
       </Routes>
     </>
   );

@@ -74,7 +74,7 @@ const SigninPage = () => {
 
         console.log("✅ Login successfully:", resData);
         toast.success("Login successfully!");
-        navigate("/company/dashboard");
+        navigate("/company/");
       }
     } catch (error) {
       console.log("error in login:", error);

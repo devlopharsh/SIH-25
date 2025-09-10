@@ -4,6 +4,7 @@ const layout = ({ children }) => {
   return (
     <>
       <Navbar user={sampleUser} />
+      
       <Footer />{" "}
     </>
   );

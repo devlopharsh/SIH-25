@@ -157,7 +157,7 @@ const SigninGovPage = () => {
                   Secure Access Portal
                 </h2>
                 <p className="text-gray-600 leading-relaxed max-w-md mx-auto lg:mx-0">
-                  Access the CarbonSetu Company dashboard with your authorized
+                  Access the CarbonSetu Governemnt dashboard with your authorized
                   government credentials. Your data is protected with
                   enterprise-grade security.
                 </p>

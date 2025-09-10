@@ -6,7 +6,7 @@ const ProtectedCompanyRoute = ({ children }) => {
 
   // If no token, redirect to login/signup
   if (!token) {
-    return <Navigate to="/company/login" replace />;
+    return <Navigate to="/company/Signin" replace />;
   }
 
   // Otherwise, render the protected page
