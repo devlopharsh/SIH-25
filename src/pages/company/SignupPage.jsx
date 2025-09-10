@@ -14,6 +14,15 @@ import {
 } from "../../components/ui/select";
 import { Shield, CheckCircle, User } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const otpSchema = z.object({
+  otp: z
+    .string()
+    .length(6, "OTP must be 6 digits")
+    .regex(/^[0-9]+$/, "OTP must be numeric"),
+});
 
 // ✅ Zod Schema
 const signupSchema = z.object({
@@ -31,7 +40,7 @@ const signupSchema = z.object({
   address: z.string().min(5, "Address is required"),
   state: z.string().min(1, "State is required"),
   city: z.string().min(1, "City is required"),
-  pincode: z.string().regex(/^[0-9]{6}$/, "Pincode must be 6 digits"),
+  pin: z.string().regex(/^[0-9]{6}$/, "pin must be 6 digits"),
   industryType: z.string().min(1, "Select industry type"),
   website: z.string().url("Enter a valid website").optional(),
   agreeTerms: z.literal(true, {
@@ -40,6 +49,10 @@ const signupSchema = z.object({
 });
 
 const SignupPage = () => {
+  const [disabled, setDisabled] = useState(false);
+  const [emailed, setEmail] = useState("");
+  const [phase, setPhase] = useState("form");
+  const naviagte = useNavigate();
   const {
     register,
     handleSubmit,
@@ -60,21 +73,68 @@ const SignupPage = () => {
       address: "",
       state: "",
       city: "",
-      pincode: "",
+      pin: "",
       industryType: "",
       website: "",
       agreeTerms: false,
     },
   });
 
+  const {
+    register: otpRegister,
+    handleSubmit: handleOtpSubmit,
+    formState: { errors: otpErrors },
+  } = useForm({
+    resolver: zodResolver(otpSchema),
+    defaultValues: {
+      otp: "",
+    },
+  });
+
+  const verifyOtp = async (data) => {
+    try {
+      setDisabled(true);
+      console.log(emailed, data.otp);
+      const response = await fetch(
+        "https://blue-carbon-server.onrender.com/api/company/verify-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: emailed, otp: data.otp }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("❌ OTP verification failed:", errorData);
+        toast.error("OTP verification failed. Check console for details.");
+      } else {
+        const resData = await response.json();
+        console.log("✅ OTP verified successfully:", resData);
+        toast.success("OTP verified successfully!");
+        naviagte("/company/signup");
+      }
+    } catch (error) {
+      console.error("❌ Error verifying OTP:", error);
+      toast.error("Error verifying OTP. Check console for details.");
+    } finally {
+      setDisabled(false);
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
+      setDisabled(true);
       const formData = new FormData();
 
       // Append fields
       for (const key in data) {
         formData.append(key, data[key]);
       }
+      setEmail(data.email);
+      console.log("Email stored in state:", data.email);
 
       // Send POST request with fetch
       const response = await fetch(
@@ -90,13 +150,15 @@ const SignupPage = () => {
         toast.error("Error while logging");
         console.log("❌ Error:", errData);
       } else {
+        setDisabled(false);
         const resData = await response.json();
         console.log("✅ Signup success:", resData);
+        setPhase("otp");
         toast.success(resData.message);
       }
     } catch (error) {
       console.error("❌ Signup error:", error);
-      alert("Signup failed! Check console for details.");
+      toast.error("Signup failed! Check console for details.");
     }
   };
 
@@ -118,9 +180,6 @@ const SignupPage = () => {
                 <SelectItem value="hindi">हिंदी</SelectItem>
               </SelectContent>
             </Select>
-            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-gray-600" />
-            </div>
           </div>
         </div>
       </header>
@@ -131,7 +190,7 @@ const SignupPage = () => {
           <div className="max-w-6xl w-full mx-auto">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               {/* Left Side */}
-              <div className=" fixed text-center bottom-1/6 lg:text-center flex flex-col ">
+              <div className=" hidden fixed text-center bottom-1/6 lg:text-center md:flex flex-col ">
                 <img
                   src="/auth.gif"
                   alt="auth"
@@ -149,342 +208,418 @@ const SignupPage = () => {
               </div>
 
               {/* Right Side - Form */}
-              <div className="relative left-[40vw] max-w-2xl mx-auto w-full">
-                <div className="bg-white rounded-2xl shadow-lg border flex flex-col items-center border-gray-200 p-8">
-                  <div className="text-center flex gap-5 mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4 relative">
-                      <Shield className="w-8 h-8 text-blue-600" />
-                      <CheckCircle className="w-4 h-4 text-blue-600 absolute ml-6 -mt-2" />
+              {phase === "form" ? (
+                <div className="md:relative left-[40vw] max-w-2xl mx-auto w-full">
+                  <div className="bg-white rounded-2xl shadow-lg border flex flex-col items-center border-gray-200 p-8">
+                    <div className="text-center flex gap-5 mb-8">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4 relative">
+                        <Shield className="w-8 h-8 text-blue-600" />
+                        <CheckCircle className="w-4 h-4 text-blue-600 absolute ml-6 -mt-2" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-2xl font-bold text-gray-900">
+                          Company Register
+                        </h3>
+                        <p className="text-gray-600 ">
+                          Fill in your company details for registration
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-left">
-                      <h3 className="text-2xl font-bold text-gray-900">
-                        Company Register
-                      </h3>
-                      <p className="text-gray-600 ">
-                        Fill in your company details for registration
-                      </p>
-                    </div>
-                  </div>
 
-                  <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="space-y-5 w-full"
-                  >
-                    <div className="grid grid-cols-2 gap-5">
-                      {/* Company Name */}
-                      <div>
-                        <Label htmlFor="companyName">Company Name</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="companyName"
-                          type="text"
-                          {...register("companyName")}
-                          className="mt-2  "
-                        />
-                        {errors.companyName && (
-                          <p className="text-red-500 text-sm">
-                            {errors.companyName.message}
-                          </p>
-                        )}
+                    <form
+                      onSubmit={handleSubmit(onSubmit)}
+                      className="space-y-5 w-full"
+                    >
+                      <div className="grid grid-cols-2 gap-5">
+                        {/* Company Name */}
+                        <div>
+                          <Label htmlFor="companyName">Company Name</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="companyName"
+                            type="text"
+                            {...register("companyName")}
+                            className="mt-2  "
+                          />
+                          {errors.companyName && (
+                            <p className="text-red-500 text-sm">
+                              {errors.companyName.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Email */}
+                        <div>
+                          <Label htmlFor="email">Email</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="email"
+                            type="email"
+                            {...register("email")}
+                            className="mt-2  "
+                          />
+                          {errors.email && (
+                            <p className="text-red-500 text-sm">
+                              {errors.email.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Password */}
+                        <div>
+                          <Label htmlFor="password">Password</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="password"
+                            type="password"
+                            {...register("password")}
+                            className="mt-2  "
+                          />
+                          {errors.password && (
+                            <p className="text-red-500 text-sm">
+                              {errors.password.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Phone */}
+                        <div>
+                          <Label htmlFor="phone">Phone</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="phone"
+                            type="tel"
+                            {...register("phone")}
+                            className="mt-2  "
+                          />
+                          {errors.phone && (
+                            <p className="text-red-500 text-sm">
+                              {errors.phone.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Company Type */}
+                        <div>
+                          <Label>Type</Label>
+                          <Select
+                            className="w-[100%]"
+                            onValueChange={(val) => setValue("type", val)}
+                          >
+                            <SelectTrigger className="mt-2   w-full">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent className="w-full">
+                              <SelectItem value="pvtltd">
+                                Private Ltd
+                              </SelectItem>
+                              <SelectItem value="llp">LLP</SelectItem>
+                              <SelectItem value="partnership">
+                                Partnership
+                              </SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.type && (
+                            <p className="text-red-500 text-sm">
+                              {errors.type.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Registration Number */}
+                        <div>
+                          <Label htmlFor="registrationNumber">
+                            Registration Number
+                          </Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="registrationNumber"
+                            type="text"
+                            {...register("registrationNumber")}
+                            className="mt-2  "
+                          />
+                          {errors.registrationNumber && (
+                            <p className="text-red-500 text-sm">
+                              {errors.registrationNumber.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Registration Doc */}
+                        <div>
+                          <Label htmlFor="registrationDoc">
+                            Registration Document
+                          </Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="registrationDoc"
+                            type="file"
+                            accept=".pdf,.jpg,.png"
+                            className="mt-2  "
+                            onChange={(e) =>
+                              setValue("registrationDoc", e.target.files[0])
+                            }
+                          />
+                          {errors.registrationDoc && (
+                            <p className="text-red-500 text-sm">
+                              {errors.registrationDoc.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* PAN */}
+                        <div>
+                          <Label htmlFor="panNumber">PAN Number</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="panNumber"
+                            type="text"
+                            {...register("panNumber")}
+                            className="mt-2  "
+                          />
+                          {errors.panNumber && (
+                            <p className="text-red-500 text-sm">
+                              {errors.panNumber.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* GST */}
+                        <div>
+                          <Label htmlFor="gstNumber">GST Number</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="gstNumber"
+                            type="text"
+                            {...register("gstNumber")}
+                            className="mt-2  "
+                          />
+                          {errors.gstNumber && (
+                            <p className="text-red-500 text-sm">
+                              {errors.gstNumber.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Address */}
+                        <div className="col-span-2">
+                          <Label htmlFor="address">Address</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="address"
+                            type="text"
+                            {...register("address")}
+                            className="mt-2  "
+                          />
+                          {errors.address && (
+                            <p className="text-red-500 text-sm">
+                              {errors.address.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* State */}
+                        <div>
+                          <Label htmlFor="state">State</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="state"
+                            type="text"
+                            {...register("state")}
+                            className="mt-2  "
+                          />
+                          {errors.state && (
+                            <p className="text-red-500 text-sm">
+                              {errors.state.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* City */}
+                        <div>
+                          <Label htmlFor="city">City</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="city"
+                            type="text"
+                            {...register("city")}
+                            className="mt-2  "
+                          />
+                          {errors.city && (
+                            <p className="text-red-500 text-sm">
+                              {errors.city.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* pin */}
+                        <div>
+                          <Label htmlFor="pin">Pincode</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="pin"
+                            type="text"
+                            {...register("pin")}
+                            className="mt-2  "
+                          />
+                          {errors.pin && (
+                            <p className="text-red-500 text-sm">
+                              {errors.pin.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Industry Type */}
+                        <div>
+                          <Label>Industry Type</Label>
+                          <Select
+                            onValueChange={(val) =>
+                              setValue("industryType", val)
+                            }
+                          >
+                            <SelectTrigger className="mt-2 w-full ">
+                              <SelectValue placeholder="Select industry" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="manufacturing">
+                                Manufacturing
+                              </SelectItem>
+                              <SelectItem value="it">IT</SelectItem>
+                              <SelectItem value="finance">Finance</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.industryType && (
+                            <p className="text-red-500 text-sm">
+                              {errors.industryType.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Website */}
+                        <div className="col-span-2">
+                          <Label htmlFor="website">Website</Label>
+                          <Input
+                            placeholder="Enter Field here"
+                            id="website"
+                            type="url"
+                            {...register("website")}
+                            className="mt-2  "
+                          />
+                          {errors.website && (
+                            <p className="text-red-500 text-sm">
+                              {errors.website.message}
+                            </p>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Email */}
-                      <div>
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="email"
-                          type="email"
-                          {...register("email")}
-                          className="mt-2  "
-                        />
-                        {errors.email && (
-                          <p className="text-red-500 text-sm">
-                            {errors.email.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Password */}
-                      <div>
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="password"
-                          type="password"
-                          {...register("password")}
-                          className="mt-2  "
-                        />
-                        {errors.password && (
-                          <p className="text-red-500 text-sm">
-                            {errors.password.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Phone */}
-                      <div>
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="phone"
-                          type="tel"
-                          {...register("phone")}
-                          className="mt-2  "
-                        />
-                        {errors.phone && (
-                          <p className="text-red-500 text-sm">
-                            {errors.phone.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Company Type */}
-                      <div>
-                        <Label>Type</Label>
-                        <Select
-                          className="w-[100%]"
-                          onValueChange={(val) => setValue("type", val)}
-                        >
-                          <SelectTrigger className="mt-2   w-full">
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                          <SelectContent className="w-full">
-                            <SelectItem value="pvtltd">Private Ltd</SelectItem>
-                            <SelectItem value="llp">LLP</SelectItem>
-                            <SelectItem value="partnership">
-                              Partnership
-                            </SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {errors.type && (
-                          <p className="text-red-500 text-sm">
-                            {errors.type.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Registration Number */}
-                      <div>
-                        <Label htmlFor="registrationNumber">
-                          Registration Number
-                        </Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="registrationNumber"
-                          type="text"
-                          {...register("registrationNumber")}
-                          className="mt-2  "
-                        />
-                        {errors.registrationNumber && (
-                          <p className="text-red-500 text-sm">
-                            {errors.registrationNumber.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Registration Doc */}
-                      <div>
-                        <Label htmlFor="registrationDoc">
-                          Registration Document
-                        </Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="registrationDoc"
-                          type="file"
-                          accept=".pdf,.jpg,.png"
-                          className="mt-2  "
-                          onChange={(e) =>
-                            setValue("registrationDoc", e.target.files[0])
+                      {/* Terms */}
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="agreeTerms"
+                          onCheckedChange={(checked) =>
+                            setValue("agreeTerms", checked)
                           }
                         />
-                        {errors.registrationDoc && (
-                          <p className="text-red-500 text-sm">
-                            {errors.registrationDoc.message}
-                          </p>
-                        )}
+                        <Label htmlFor="agreeTerms" className="text-sm">
+                          I agree to the terms & conditions
+                        </Label>
                       </div>
+                      {errors.agreeTerms && (
+                        <p className="text-red-500 text-sm">
+                          {errors.agreeTerms.message}
+                        </p>
+                      )}
 
-                      {/* PAN */}
-                      <div>
-                        <Label htmlFor="panNumber">PAN Number</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="panNumber"
-                          type="text"
-                          {...register("panNumber")}
-                          className="mt-2  "
-                        />
-                        {errors.panNumber && (
-                          <p className="text-red-500 text-sm">
-                            {errors.panNumber.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* GST */}
-                      <div>
-                        <Label htmlFor="gstNumber">GST Number</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="gstNumber"
-                          type="text"
-                          {...register("gstNumber")}
-                          className="mt-2  "
-                        />
-                        {errors.gstNumber && (
-                          <p className="text-red-500 text-sm">
-                            {errors.gstNumber.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Address */}
-                      <div className="col-span-2">
-                        <Label htmlFor="address">Address</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="address"
-                          type="text"
-                          {...register("address")}
-                          className="mt-2  "
-                        />
-                        {errors.address && (
-                          <p className="text-red-500 text-sm">
-                            {errors.address.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* State */}
-                      <div>
-                        <Label htmlFor="state">State</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="state"
-                          type="text"
-                          {...register("state")}
-                          className="mt-2  "
-                        />
-                        {errors.state && (
-                          <p className="text-red-500 text-sm">
-                            {errors.state.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* City */}
-                      <div>
-                        <Label htmlFor="city">City</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="city"
-                          type="text"
-                          {...register("city")}
-                          className="mt-2  "
-                        />
-                        {errors.city && (
-                          <p className="text-red-500 text-sm">
-                            {errors.city.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Pincode */}
-                      <div>
-                        <Label htmlFor="pincode">Pincode</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="pincode"
-                          type="text"
-                          {...register("pincode")}
-                          className="mt-2  "
-                        />
-                        {errors.pincode && (
-                          <p className="text-red-500 text-sm">
-                            {errors.pincode.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Industry Type */}
-                      <div>
-                        <Label>Industry Type</Label>
-                        <Select
-                          onValueChange={(val) => setValue("industryType", val)}
-                        >
-                          <SelectTrigger className="mt-2 w-full ">
-                            <SelectValue placeholder="Select industry" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="manufacturing">
-                              Manufacturing
-                            </SelectItem>
-                            <SelectItem value="it">IT</SelectItem>
-                            <SelectItem value="finance">Finance</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {errors.industryType && (
-                          <p className="text-red-500 text-sm">
-                            {errors.industryType.message}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Website */}
-                      <div className="col-span-2">
-                        <Label htmlFor="website">Website</Label>
-                        <Input
-                          placeholder="Enter Field here"
-                          id="website"
-                          type="url"
-                          {...register("website")}
-                          className="mt-2  "
-                        />
-                        {errors.website && (
-                          <p className="text-red-500 text-sm">
-                            {errors.website.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Terms */}
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="agreeTerms"
-                        onCheckedChange={(checked) =>
-                          setValue("agreeTerms", checked)
-                        }
-                      />
-                      <Label htmlFor="agreeTerms" className="text-sm">
-                        I agree to the terms & conditions
-                      </Label>
-                    </div>
-                    {errors.agreeTerms && (
-                      <p className="text-red-500 text-sm">
-                        {errors.agreeTerms.message}
-                      </p>
-                    )}
-
-                    {/* Submit */}
-                    <Button
-                      type="submit"
-                      className="w-full   bg-gray-900 hover:bg-gray-800 text-white font-medium flex items-center justify-center space-x-2"
-                    >
-                      <Shield className="w-4 h-4" />
-                      <span>Create Account</span>
-                    </Button>
-                  </form>
+                      {/* Submit */}
+                      <Button
+                        disabled={disabled}
+                        type="submit"
+                        className="w-full hover:bg-gray-800 text-white font-medium flex items-center justify-center space-x-2"
+                      >
+                        <Shield className="w-4 h-4" />
+                        <span>Create Account</span>
+                      </Button>
+                    </form>
+                    <p className="text-xs mt-5">Already a user <a href="/company/signin" className="text-blue-600 underline">Login</a></p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="md:relative left-[40vw] max-w-md mx-auto w-full">
+                  <div className="bg-white rounded-2xl shadow-lg border flex flex-col items-center border-gray-200 p-8">
+                    <div className="text-center flex gap-5 mb-8">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4 relative">
+                        <Shield className="w-8 h-8 text-blue-600" />
+                        <CheckCircle className="w-4 h-4 text-blue-600 absolute ml-6 -mt-2" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-2xl font-bold text-gray-900">
+                          Verify OTP
+                        </h3>
+                        <p className="text-gray-600 ">
+                          Verify OTP sent on{" "}
+                          <span className="font-bold">{emailed}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <form
+                      onSubmit={handleOtpSubmit(verifyOtp)}
+                      className="space-y-5 w-full"
+                    >
+                      <div className="grid  gap-5">
+                        <div>
+                          <Label htmlFor="otp">OTP:</Label>
+                          <Input
+                            placeholder="Enter OTP here"
+                            id="otp"
+                            type="text"
+                            {...otpRegister("otp")}
+                            className="mt-2"
+                          />
+                          {otpErrors.otp && (
+                            <p className="text-red-500 text-sm">
+                              {otpErrors.otp.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <Button
+                        disabled={disabled}
+                        type="submit"
+                        className="w-full hover:bg-gray-800 text-white font-medium flex items-center justify-center space-x-2"
+                      >
+                        <Shield className="w-4 h-4" />
+                        <span>Verify OTP</span>
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+              )}
               {/* End Right Side */}
             </div>
           </div>
         </div>
       </main>
+
+      <footer className="bg-white border-t border-gray-200 px-6 py-4 mt-20 block md:hidden b-0">
+        {" "}
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-gray-600">
+          {" "}
+          <div>© 2025 Government of India</div>{" "}
+          <div className="flex items-center space-x-6">
+            {" "}
+            <a href="#" className="hover:text-gray-900">
+              {" "}
+              Privacy Policy{" "}
+            </a>{" "}
+            <span className="text-right">MOES, Govt of India</span>{" "}
+          </div>{" "}
+        </div>{" "}
+      </footer>
     </div>
   );
 };

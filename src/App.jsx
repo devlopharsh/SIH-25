@@ -7,9 +7,17 @@ import Footer from "./components/government/Footer";
 import { Routes, Route } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
+//utils
+import ProtectedCompanyRoute from "./utils/middlewareCompany";
+import ProtectedGovernmentRoute from "./utils/middlewareGovernment";
+
 // Pages
 import LandingPage from "./pages/Landing-page";
 import SignupPage from "./pages/company/SignupPage";
+import SigninPage from "./pages/company/SigninPage";
+import Dashboard from "./pages/company/Dashboard";
+
+import SigninGovPage from "./pages/Government/SigninPage";
 
 function App() {
   const sampleUser = {
@@ -25,14 +33,22 @@ function App() {
     <>
       <Toaster />
       <Routes>
+        {/* unprotected Routes */}
         <Route path="/" element={<LandingPage />} />
-        {/* <Route path="/project" element={<Project />} />
-        <Route path="/contact" element={<Contact />} /> */}
         <Route path="/company/Signup" element={<SignupPage />} />
-        {/* <Route path="/company/Signin" element={<SigninPage />} /> */}
+        <Route path="/company/Signin" element={<SigninPage />} />
+        <Route path="/Government/Signin" element={<SigninGovPage />} />
 
         {/* protected Routes */}
-        <Route path="/dashboard" element={<LandingPage />} />
+        {/* <Route path="/dashboard" element={<LandingPage />} /> */}
+        <Route
+          path="/company/dashboard"
+          element={
+            <ProtectedCompanyRoute>
+              <Dashboard />
+            </ProtectedCompanyRoute>
+          }
+        />
       </Routes>
     </>
   );

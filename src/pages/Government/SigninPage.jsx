@@ -20,11 +20,11 @@ import { useNavigate } from "react-router-dom";
 
 // ✅ Zod Schema
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  userId: z.string().min(7,"Invalid UserId address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-const SigninPage = () => {
+const SigninGovPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const {
@@ -35,7 +35,7 @@ const SigninPage = () => {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      userId: "",
       password: "",
     },
   });
@@ -45,7 +45,7 @@ const SigninPage = () => {
       setLoading(true);
       console.log("Login attempt:", data);
       const response = await fetch(
-        "https://blue-carbon-server.onrender.com/api/company/login",
+        "https://blue-carbon-server.onrender.com/api/gov/auth/login",
         {
           method: "POST",
           headers: {
@@ -63,10 +63,10 @@ const SigninPage = () => {
       } else {
         const resData = await response.json();
         //save in localstorage
-        localStorage.setItem("CompanyToken", resData.token);
+        localStorage.setItem("GovernmentToken", resData.token);
 
         //cookies saving
-        Cookies.set("CompanyToken", resData.token, {
+        Cookies.set("GovernmentToken", resData.token, {
           expires: 7, // days until expiration
           secure: true, // only sent over HTTPS
           sameSite: "Strict", // prevent CSRF
@@ -74,7 +74,7 @@ const SigninPage = () => {
 
         console.log("✅ Login successfully:", resData);
         toast.success("Login successfully!");
-        navigate("/company/dashboard");
+        navigate("/Government/dashboard");
       }
     } catch (error) {
       console.log("error in login:", error);
@@ -174,29 +174,29 @@ const SigninPage = () => {
 
                     <div className="text-left">
                       <h3 className="text-2xl font-bold text-gray-900">
-                        Company Login
+                        Government Login
                       </h3>
                       <p className="text-gray-600">
-                        Enter Credentials to log in
+                        Enter Provided Credentials to log in
                       </p>
                     </div>
                   </div>
 
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div>
                       <Label htmlFor="government-id" className="text-gray-700">
-                        Email
+                        UserId
                       </Label>
                       <Input
-                        id="email"
+                        id=""
                         type="text"
-                        {...register("email")}
+                        {...register("userId")}
                         className="mt-2 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                        placeholder="Enter your email"
+                        placeholder="Enter your userId"
                       />
-                      {errors.email && (
+                      {errors.userId && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.email.message}
+                          {errors.userId.message}
                         </p>
                       )}
                     </div>
@@ -238,23 +238,14 @@ const SigninPage = () => {
                     </Button>
 
                     <div className="flex items-center justify-center space-x-6 pt-4 border-t border-gray-200">
-                      {/* <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <CheckCircle className="w-4 h-4 text-green-600" />
                         <span>Two-Factor Auth</span>
                       </div>
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
                         <Clock className="w-4 h-4 text-orange-500" />
                         <span>Session Timeout</span>
-                      </div> */}
-                      <p className="text-xs mt-5">
-                        New to us?{" "}
-                        <a
-                          href="/company/signin"
-                          className="text-blue-600 underline"
-                        >
-                          Sign up
-                        </a>
-                      </p>
+                      </div>
                     </div>
                   </form>
                 </div>
@@ -281,4 +272,4 @@ const SigninPage = () => {
   );
 };
 
-export default SigninPage;
+export default SigninGovPage;
