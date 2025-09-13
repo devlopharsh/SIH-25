@@ -12,15 +12,15 @@ import ProtectedCompanyRoute from "./utils/middlewareCompany";
 import ProtectedGovernmentRoute from "./utils/middlewareGovernment";
 
 //components
-import DashBoard from "./components/Company/DashBoard";
-import Projects from "./components/Company/Projects";
-import AuditLogs from "./components/Company/Auditlogs";
+import DashBoard from "./pages/company/DashBoard";
+import Projects from "./pages/company/Projects";
+import AuditLogs from "./pages/company/Auditlogs";
 
 // Pages
 import LandingPage from "./pages/Landing-page";
 import SignupPage from "./pages/company/SignupPage";
 import SigninPage from "./pages/company/SigninPage";
-import Page from "./pages/company/Page";
+import Page from "./pages/company/layout";
 
 import SigninGovPage from "./pages/Government/SigninPage";
 

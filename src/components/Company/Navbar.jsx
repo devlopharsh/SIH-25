@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
-import { Users , FileArchive , LayoutDashboard  } from 'lucide-react'
+import { Users, FileArchive, LayoutDashboard } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,21 +59,23 @@ const Navbar = ({ user }) => {
       </div>
 
       {/* Sidebar navigation */}
-      <div className="border-r fixed top-0 left-0 h-full px-3 pt-20 z-20">
-        <div className="font-medium text-md text-left mb-5">Company Management</div>
-        <NavigationMenu>
-          <NavigationMenuList className="flex flex-col w-40 gap-3 text-sm ">
+      <div className="border-r fixed top-0 left-0 h-full pt-20 z-20 w-[13vw]">
+        <div className="font-medium text-md mb-5 pr-4 text-gray-600">
+          Company Management :
+        </div>
+        <NavigationMenu className="w-fullx">
+          <NavigationMenuList className="flex flex-col items-baseline gap-3 text-sm text-left w-full">
             <NavigationMenuItem>
               <NavLink
                 to="/company"
                 end
                 className={({ isActive }) =>
                   isActive
-                    ? "text-md text-white bg-secondary  px-5 py-2 rounded flex justify-between w-full gap-3 "
-                    : "text-md text-gray-600 hover:text-secondary flex justify-between w-full gap-3"
+                    ? "text-md text-white bg-secondary px-5 py-2 rounded flex items-center justify-between w-full gap-3"
+                    : "text-md text-gray-600 hover:text-secondary flex items-center justify-between w-full gap-3"
                 }
               >
-                <LayoutDashboard className="w-5 h-5"/>
+                <LayoutDashboard className="w-5 h-5" />
                 Dashboard
               </NavLink>
             </NavigationMenuItem>
@@ -83,11 +85,11 @@ const Navbar = ({ user }) => {
                 to="/company/projectstatus"
                 className={({ isActive }) =>
                   isActive
-                    ? "text-md text-white bg-secondary px-4 py-2 rounded flex justify-between w-full gap-3 "
-                    : "text-md text-gray-600 hover:text-secondary flex justify-between w-full gap-3"
+                    ? "text-md text-white bg-secondary px-4 py-2 rounded flex items-center justify-between w-full gap-3"
+                    : "text-md text-gray-600 hover:text-secondary flex items-center justify-between w-full gap-3"
                 }
               >
-                <FileArchive className="h-5 w-5"/>
+                <FileArchive className="h-5 w-5" />
                 Request Status
               </NavLink>
             </NavigationMenuItem>
@@ -97,8 +99,8 @@ const Navbar = ({ user }) => {
                 to="/company/audit"
                 className={({ isActive }) =>
                   isActive
-                    ? "text-md text-white bg-secondary font-bold px-5 py-2 rounded flex justify-between w-full gap-3 "
-                    : "text-md text-gray-600 hover:text-secondary flex justify-between w-full gap-3"
+                    ? "text-md text-white bg-secondary px-5 py-2 rounded flex items-center justify-between w-full gap-3"
+                    : "text-md text-gray-600 hover:text-secondary flex items-center justify-between w-full gap-3"
                 }
               >
                 <Users className="h-5 w-5" />
