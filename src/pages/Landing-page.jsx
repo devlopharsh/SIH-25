@@ -10,7 +10,7 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-white relative overflow-hidden ">
+    <div className="min-h-screen h-full bg-gradient-to-br from-blue-100 via-blue-50 to-white relative overflow-hidden ">
       {/* Background Bubbles */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div

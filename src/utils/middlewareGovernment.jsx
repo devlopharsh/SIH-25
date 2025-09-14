@@ -2,11 +2,11 @@
 import { Navigate } from "react-router-dom";
 
 const ProtectedGovernmentRoute = ({ children }) => {
-  const token = localStorage.getItem("governmentToken"); // or session, context, etc.
+  const token = localStorage.getItem("token"); // or session, context, etc.
 
   // If no token, redirect to login/signup
   if (!token) {
-    return <Navigate to="/company/login" replace />;
+    return <Navigate to="/government/Signin" replace />;
   }
 
   // Otherwise, render the protected page

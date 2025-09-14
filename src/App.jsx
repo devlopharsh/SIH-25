@@ -23,6 +23,8 @@ import SigninPage from "./pages/company/SigninPage";
 import Page from "./pages/company/layout";
 import Reset_Password from "./pages/Government/Reset_Password";
 import SigninGovPage from "./pages/Government/SigninPage";
+import Audit_Dashboard from "./pages/Government/Audit_Dashboard";
+import Layout from "./pages/Government/layout/layout";
 // import 
 
 function App() {
@@ -46,15 +48,14 @@ function App() {
         <Route path="/government/Signin" element={<SigninGovPage />} />
         <Route path="/government/reset-password/:token" element={<Reset_Password />} />
 
+
         {/* protected Government Routes */}
+
         <Route
-          path="/government/"
-          element={
-            <ProtectedGovernmentRoute>
-              {/* <DashboardGovernment /> */}
-            </ProtectedGovernmentRoute>
-          }
-        ></Route>
+          path="/government"
+          element={<ProtectedGovernmentRoute> <Layout /> </ProtectedGovernmentRoute> }>
+            <Route path="/government/Audit" element={<Audit_Dashboard user={sampleUser} />} />
+        </Route>
 
         {/* protected Routes */}
         <Route
