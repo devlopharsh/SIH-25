@@ -23,7 +23,7 @@ import SigninPage from "./pages/company/SigninPage";
 import Page from "./pages/company/layout";
 import Reset_Password from "./pages/Government/Reset_Password";
 import SigninGovPage from "./pages/Government/SigninPage";
-// import 
+import Layout from "./pages/Government/layout";
 
 function App() {
   const sampleUser = {
@@ -44,17 +44,25 @@ function App() {
         <Route path="/company/Signup" element={<SignupPage />} />
         <Route path="/company/Signin" element={<SigninPage />} />
         <Route path="/government/Signin" element={<SigninGovPage />} />
-        <Route path="/government/reset-password/:token" element={<Reset_Password />} />
+        <Route
+          path="/government/reset-password/:token"
+          element={<Reset_Password />}
+        />
 
         {/* protected Government Routes */}
         <Route
-          path="/government/"
+          path="/government"
           element={
             <ProtectedGovernmentRoute>
-              {/* <DashboardGovernment /> */}
+              <Layout />
             </ProtectedGovernmentRoute>
           }
-        ></Route>
+        >
+          <Route index element={<DashBoard />} /> 
+          <Route path="dashboard" element={<DashBoard />} />{" "}
+          <Route path="auditUsers" element={<DashBoard />} />{" "}
+          {/* /government/dashboard */}
+        </Route>
 
         {/* protected Routes */}
         <Route

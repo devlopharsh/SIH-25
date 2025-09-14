@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
+import { NavLink } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
+import { Users, FileArchive, LayoutDashboard } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,57 +16,19 @@ import {
 } from "../ui/navigation-menu";
 
 const Navbar = ({ user }) => {
-  const [activeH, setActiveH] = useState("Home");
-
   return (
-    <>
-      <nav className="flex items-center justify-between bg-background px-6 py-3 border-b">
-        <div className="flex items-center justify-between gap-10 ">
+    <nav className="border-b fixed w-full">
+      {/* Top bar */}
+      <div className="flex items-center justify-between bg-background px-6 py-3 z-90">
+        <div className="flex items-center gap-10">
           {/* Logo */}
           <div className="text-xl font-semibold">
-            <img src="/Logo.svg" alt="Logo" width={150} />
+            <a href="/">
+              <img src="/Logo.svg" alt="Logo" width={150} />
+            </a>
           </div>
 
-          {/* Route Links */}
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <Link
-                  to="/"
-                  onClick={() => setActiveH("Home")}
-                  className="px-3 py-2"
-                >
-                  {activeH === "Home" ? (
-                    <p className="text-md text-secondary font-bold">
-                      Dashboard
-                    </p>
-                  ) : (
-                    <p className="text-md">Dashboard</p>
-                  )}
-                </Link>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <Link
-                  to="/Project"
-                  onClick={() => setActiveH("Project")}
-                  className="px-3 py-2"
-                >
-                  {activeH === "Project" ? (
-                    <p className="text-md text-secondary font-bold">Project</p>
-                  ) : (
-                    <p className="text-md">Project</p>
-                  )}
-                </Link>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <Link to="/contact" className="px-3 py-2">
-                  Contact
-                </Link>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+          <div className="text-xl text-gray-500 font-bold">Company Portal</div>
         </div>
 
         {/* Profile Dropdown */}
@@ -83,7 +46,7 @@ const Navbar = ({ user }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <div className="px-3 py-2">
+              <div className="mb-2">
                 <p className="text-sm font-medium">{user.name}</p>
                 <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
@@ -93,8 +56,47 @@ const Navbar = ({ user }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-      </nav>
-    </>
+      </div>
+
+      {/* Sidebar navigation */}
+      <div className="border-r fixed top-0 left-0 h-full pt-20 z-20 w-[13vw]">
+        <div className="font-medium text-md mb-5 pr-4 text-gray-600">
+          Company Management :
+        </div>
+        <NavigationMenu className="w-fullx">
+          <NavigationMenuList className="flex flex-col items-baseline gap-3 text-sm text-left w-full">
+            <NavigationMenuItem>
+              <NavLink
+                to="/government"
+                end
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-md text-white bg-secondary px-5 py-2 rounded flex items-center justify-between w-full gap-3"
+                    : "text-md text-gray-600 hover:text-secondary flex items-center justify-between w-full gap-3"
+                }
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                Dashboard
+              </NavLink>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavLink
+                to="/government/auditUsers"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-md text-white bg-secondary px-4 py-2 rounded flex items-center justify-between w-full gap-3"
+                    : "text-md text-gray-600 hover:text-secondary flex items-center justify-between w-full gap-3"
+                }
+              >
+                <FileArchive className="h-5 w-5" />
+                Request Status
+              </NavLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
+    </nav>
   );
 };
 

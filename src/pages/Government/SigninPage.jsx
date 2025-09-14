@@ -75,7 +75,7 @@ const SigninGovPage = () => {
 
         console.log("✅ Login successfully:", resData);
         toast.success("Login successfully!");
-        navigate("/Government/dashboard");
+        navigate("/government/");
       }
     } catch (error) {
       console.log("error in login:", error);
