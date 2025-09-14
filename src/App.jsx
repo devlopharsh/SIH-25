@@ -12,7 +12,7 @@ import ProtectedCompanyRoute from "./utils/middlewareCompany";
 import ProtectedGovernmentRoute from "./utils/middlewareGovernment";
 
 //components
-import DashBoard from "./pages/company/DashBoard";
+import DashBoard from "./pages/company/Dashboard";
 import Projects from "./pages/company/Projects";
 import AuditLogs from "./pages/company/Auditlogs";
 
