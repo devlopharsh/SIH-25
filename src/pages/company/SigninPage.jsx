@@ -4,7 +4,6 @@ import { z } from "zod";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { Checkbox } from "../../components/ui/checkbox";
 import Cookies from "js-cookie";
 import {
   Select,
@@ -17,6 +16,7 @@ import { Shield, Lock, Clock, CheckCircle, User } from "lucide-react";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import ForgetPasswordDialog from "@/components/common/forgot-password";
 
 // ✅ Zod Schema
 const loginSchema = z.object({
@@ -182,7 +182,10 @@ const SigninPage = () => {
                     </div>
                   </div>
 
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
+                  <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="space-y-6 w-full"
+                  >
                     <div>
                       <Label htmlFor="government-id" className="text-gray-700">
                         Email
@@ -220,12 +223,11 @@ const SigninPage = () => {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <a
-                        href="#"
-                        className="text-sm text-blue-600 hover:text-blue-700"
-                      >
-                        Forgot Password?
-                      </a>
+                      <ForgetPasswordDialog
+                        buttonTag={
+                          <Button variant="ghost">Forgot Password?</Button>
+                        }
+                      />
                     </div>
 
                     <Button

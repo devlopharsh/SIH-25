@@ -17,10 +17,11 @@ import { Shield, Lock, Clock, CheckCircle, User } from "lucide-react";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import ForgetPasswordDialog from "@/components/government/forgot-password";
 
 // ✅ Zod Schema
 const loginSchema = z.object({
-  userId: z.string().min(7,"Invalid UserId address"),
+  userId: z.string().min(7, "Invalid UserId address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -157,8 +158,8 @@ const SigninGovPage = () => {
                   Secure Access Portal
                 </h2>
                 <p className="text-gray-600 leading-relaxed max-w-md mx-auto lg:mx-0">
-                  Access the CarbonSetu Governemnt dashboard with your authorized
-                  government credentials. Your data is protected with
+                  Access the CarbonSetu Governemnt dashboard with your
+                  authorized government credentials. Your data is protected with
                   enterprise-grade security.
                 </p>
               </div>
@@ -220,12 +221,11 @@ const SigninGovPage = () => {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <a
-                        href="#"
-                        className="text-sm text-blue-600 hover:text-blue-700"
-                      >
-                        Forgot Password?
-                      </a>
+                      <ForgetPasswordDialog
+                        buttonTag={
+                          <Button variant="ghost">Forgot Password?</Button>
+                        }
+                      />
                     </div>
 
                     <Button

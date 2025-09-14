@@ -21,7 +21,7 @@ import LandingPage from "./pages/Landing-page";
 import SignupPage from "./pages/company/SignupPage";
 import SigninPage from "./pages/company/SigninPage";
 import Page from "./pages/company/layout";
-
+import Reset_Password from "./pages/Government/Reset_Password";
 import SigninGovPage from "./pages/Government/SigninPage";
 
 function App() {
@@ -42,12 +42,18 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/company/Signup" element={<SignupPage />} />
         <Route path="/company/Signin" element={<SigninPage />} />
-        <Route path="/Government/Signin" element={<SigninGovPage />} />
+        <Route path="/government/Signin" element={<SigninGovPage />} />
+        <Route path="/government/reset-password/:token" element={<Reset_Password />} />
 
         {/* protected Government Routes */}
-        <Route path="/Government/dashboard" element={<ProtectedGovernmentRoute>{/* <DashboardGovernment /> */}</ProtectedGovernmentRoute>}>
-
-        </Route>
+        <Route
+          path="/government/"
+          element={
+            <ProtectedGovernmentRoute>
+              {/* <DashboardGovernment /> */}
+            </ProtectedGovernmentRoute>
+          }
+        ></Route>
 
         {/* protected Routes */}
         <Route
@@ -58,9 +64,9 @@ function App() {
             </ProtectedCompanyRoute>
           }
         >
-          <Route path="/company/" element={<DashBoard/>}/> 
-          <Route path="/company/Audit" element={<AuditLogs/>}/>   
-          <Route path="/company/projectstatus" element={<Projects/>}/> 
+          <Route path="/company/" element={<DashBoard />} />
+          <Route path="/company/Audit" element={<AuditLogs />} />
+          <Route path="/company/projectstatus" element={<Projects />} />
         </Route>
       </Routes>
     </>

@@ -24,6 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { apiCall } from "@/utils/API";
 
 // ✅ Zod Schema
 const formSchema = z.object({
@@ -56,8 +57,20 @@ const AddUser = () => {
     },
   });
 
-  const onSubmit = (data) => {
-    console.log("✅ Submitted Data:", data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await apiCall(
+        "worker/create", // 👉 replace with your real endpoint
+        "POST",
+        data
+      );
+
+      console.log("✅ User created successfully:", response);
+      // you can also show a toast or close the modal here
+    } catch (error) {
+      console.error("❌ Error creating user:", error.message);
+      // show error toast or message
+    }
   };
 
   return (
