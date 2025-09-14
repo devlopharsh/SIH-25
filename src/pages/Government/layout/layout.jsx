@@ -1,13 +1,15 @@
 import React from "react";
+import Navbar from "@/components/government/Navbar";
+import Footer from "@/components/government/Footer";
 
-const layout = ({ children }) => {
+const Layout = ({ children }) => {
   return (
     <>
       <Navbar user={sampleUser} />
-      
+
       <Footer />{" "}
     </>
   );
 };
 
-export default layout;
+export default Layout;

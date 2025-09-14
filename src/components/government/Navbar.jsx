@@ -23,7 +23,7 @@ const Navbar = ({ user }) => {
         <div className="flex items-center justify-between gap-10 ">
           {/* Logo */}
           <div className="text-xl font-semibold">
-            <img src="./Logo.svg" alt="Logo" width={150} />
+            <img src="/Logo.svg" alt="Logo" width={150} />
           </div>
 
           {/* Route Links */}
