@@ -16,6 +16,7 @@ import DashBoard from "./pages/company/Dashboard";
 import Projects from "./pages/company/Projects";
 import AuditLogs from "./pages/company/Auditlogs";
 import GovDashBoard from "./pages/Government/DashBoard";
+import Audit_Dashboard from "./pages/company/Auditlogs";
 
 // Pages
 import LandingPage from "./pages/Landing-page";
@@ -25,6 +26,7 @@ import Page from "./pages/company/layout";
 import Reset_Password from "./pages/Government/Reset_Password";
 import SigninGovPage from "./pages/Government/SigninPage";
 import Layout from "./pages/Government/layout";
+import Profile from "./pages/company/Profile";
 
 function App() {
   const sampleUser = {
@@ -61,7 +63,7 @@ function App() {
         >
           <Route index element={<GovDashBoard />} /> 
           <Route path="dashboard" element={<GovDashBoard />} />{" "}
-          <Route path="auditUsers" element={<DashBoard />} />{" "}
+          <Route path="auditUsers" element={<Audit_Dashboard />} />{" "}
           {/* /government/dashboard */}
         </Route>
 
@@ -77,6 +79,7 @@ function App() {
           <Route path="/company/" element={<DashBoard />} />
           <Route path="/company/Audit" element={<AuditLogs />} />
           <Route path="/company/projectstatus" element={<Projects />} />
+          <Route path="/company/profile" element={<Profile />} />
         </Route>
       </Routes>
     </>

@@ -1,228 +1,299 @@
 import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Calendar, Filter } from "lucide-react";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { AlertCircle, CheckCircle2, Clock, Info } from "lucide-react";
 
-export default function AuditLogs() {
-  const [logs] = useState([
+import toast, { Toaster } from "react-hot-toast";
+
+export default function Audit_Dashboard() {
+  const [viewAllOpen, setViewAllOpen] = useState(false);
+
+  const [approvals, setApprovals] = useState([
     {
-      timestamp: "2025-01-15 14:32:21",
-      actor: "admin.sharma",
-      role: "Admin",
-      action: "Login",
-      entity: "System",
-      result: "Success",
-      ip: "192.168.1.25",
+      id: 1,
+      name: "Forest Guardians NGO",
+      type: "Organization registration",
+      email: "contact@fgn.org",
+      phone: "+91 98765 43210",
     },
     {
-      timestamp: "2025-01-15 14:28:15",
-      actor: "verifier.patel",
-      role: "Verifier",
-      action: "Verify Document",
-      entity: "Carbon Credit #CC-2025-001",
-      result: "Approved",
-      ip: "10.45.23.67",
+      id: 2,
+      name: "Green Planet Org",
+      type: "Organization registration",
+      email: "info@gpo.org",
+      phone: "+91 99887 77665",
     },
     {
-      timestamp: "2025-01-15 14:25:43",
-      actor: "auditor.kumar",
-      role: "Auditor",
-      action: "Access Report",
-      entity: "Monthly Audit Report",
-      result: "Success",
-      ip: "172.16.0.12",
-    },
-    {
-      timestamp: "2025-01-15 14:22:18",
-      actor: "user.anonymous",
-      role: "Guest",
-      action: "Failed Login",
-      entity: "System",
-      result: "Failed",
-      ip: "192.168.1.45",
+      id: 3,
+      name: "Eco Warriors",
+      type: "Organization registration",
+      email: "hello@ecow.org",
+      phone: "+91 91234 56789",
     },
   ]);
 
+  const [systemStatus] = useState([
+    { id: 1, name: "Blockchain Network", status: "Operational" },
+    { id: 2, name: "IPFS Storage", status: "Operational" },
+    { id: 3, name: "ML Processing", status: "Degraded" },
+    { id: 4, name: "API Gateway", status: "Operational" },
+    { id: 5, name: "Multi-sig Wallet", status: "Operational" },
+  ]);
+
+  const [alerts, setAlerts] = useState([
+    {
+      id: 1,
+      type: "High Priority Alert",
+      message: "Unusual transaction pattern detected in Project #4721",
+      time: "15 minutes ago",
+      icon: <AlertCircle className="text-red-500" size={18} />,
+      color: "bg-red-100",
+    },
+    {
+      id: 2,
+      type: "Verification Overdue",
+      message: "Project verification deadline exceeded by 3 days",
+      time: "2 hours ago",
+      icon: <Clock className="text-yellow-600" size={18} />,
+      color: "bg-yellow-100",
+    },
+    {
+      id: 3,
+      type: "System Update",
+      message: "New ML model deployed for satellite analysis",
+      time: "4 hours ago",
+      icon: <Info className="text-blue-600" size={18} />,
+      color: "bg-blue-100",
+    },
+  ]);
+
+  const [selectedAlert, setSelectedAlert] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const handleApprove = (id) => {
+    setApprovals((prev) => prev.filter((a) => a.id !== id));
+    toast.success(`Approved request with ID: ${id}`);
+  };
+
+  const handleReject = (id) => {
+    setApprovals((prev) => prev.filter((a) => a.id !== id));
+    toast.error(`Rejected request with ID: ${id}`);
+  };
+
+  const handleViewAll = () => {
+    setViewAllOpen(true);
+    toast.success("Opened all pending approvals page...");
+  };
+
+  const handleMarkAllRead = () => {
+    setAlerts([]);
+  };
+
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-8 space-y-8">
-      {/* Filter Bar */}
-      <Card>
-        <CardContent className="flex flex-wrap items-center gap-4 pt-6">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Date Range:</span>
-            <Input type="date" defaultValue="2025-01-01" className="w-40" />
-            <span>-</span>
-            <Input type="date" defaultValue="2025-01-31" className="w-40" />
+    <div className="p-6 space-y-6">
+      {/* Pending Approvals */}
+      <Card className="shadow-md">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Pending Approvals</h2>
+            <Badge className="bg-yellow-100 text-yellow-800">
+              {approvals.length} pending
+            </Badge>
           </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">User:</span>
-            <select className="border rounded-md px-2 py-1 text-sm">
-              <option>All Users</option>
-              <option>Admin</option>
-              <option>Verifier</option>
-              <option>Auditor</option>
-              <option>Guest</option>
-            </select>
+          <div className="space-y-4">
+            {approvals.map((approval) => (
+              <div
+                key={approval.id}
+                className="flex items-center justify-between border rounded-lg p-3 cursor-pointer"
+                onClick={() => setSelectedUser(approval)}
+              >
+                <div className="flex items-center space-x-3">
+                  <img
+                    src="https://randomuser.me/api/portraits/women/44.jpg"
+                    alt="avatar"
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div>
+                    <p className="font-medium">{approval.name}</p>
+                    <p className="text-sm text-gray-500">{approval.type}</p>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleApprove(approval.id);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4"
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleReject(approval.id);
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4"
+                  >
+                    Reject
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Action Type:</span>
-            <select className="border rounded-md px-2 py-1 text-sm">
-              <option>All Actions</option>
-              <option>Login</option>
-              <option>Verify Document</option>
-              <option>Access Report</option>
-            </select>
+          <div className="text-center mt-4">
+            <button
+              onClick={handleViewAll}
+              className="text-blue-600 font-medium hover:underline"
+            >
+              View All Pending
+            </button>
           </div>
-
-          <Button className="ml-auto">
-            <Filter className="mr-2 h-4 w-4" /> Apply Filters
-          </Button>
         </CardContent>
       </Card>
+      <Dialog open={viewAllOpen} onOpenChange={() => setViewAllOpen(false)}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>All Pending Approvals</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {approvals.map((approval) => (
+              <div
+                key={approval.id}
+                className="flex items-center justify-between border rounded-lg p-3"
+              >
+                <div>
+                  <p className="font-medium">{approval.name}</p>
+                  <p className="text-sm text-gray-500">{approval.type}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={() => handleApprove(approval.id)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4"
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    onClick={() => handleReject(approval.id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4"
+                  >
+                    Reject
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
 
-      {/* Stats */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Logs</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">12,847</p>
-            <p className="text-sm text-green-600">+5.2% from last week</p>
+      {/* System Status + Alerts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* System Status */}
+        <Card className="shadow-md">
+          <CardContent className="p-4">
+            <h2 className="text-lg font-semibold mb-4">System Status</h2>
+            <ul className="space-y-3">
+              {systemStatus.map((sys) => (
+                <li key={sys.id} className="flex justify-between items-center">
+                  <div className="flex items-center space-x-2">
+                    {sys.status === "Operational" && (
+                      <CheckCircle2 className="text-green-500" size={18} />
+                    )}
+                    {sys.status === "Degraded" && (
+                      <AlertCircle className="text-yellow-500" size={18} />
+                    )}
+                    <span>{sys.name}</span>
+                  </div>
+                  <span
+                    className={`$ {
+                      sys.status === "Operational"
+                        ? "text-green-600"
+                        : sys.status === "Degraded"
+                        ? "text-yellow-600"
+                        : "text-gray-600"
+                    } font-medium`}
+                  >
+                    {sys.status}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Verifications</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">8,923</p>
-            <p className="text-sm text-green-600">+12.1% success rate</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Rejections</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">1,204</p>
-            <p className="text-sm text-red-600">-2.3% from last week</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Suspicious Activities</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">23</p>
-            <p className="text-sm text-yellow-600">Requires attention</p>
+        {/* System Alerts */}
+        <Card className="shadow-md">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">System Alerts</h2>
+              <button
+                onClick={handleMarkAllRead}
+                className="text-sm text-blue-600 hover:underline"
+              >
+                Mark All Read
+              </button>
+            </div>
+            <div className="space-y-3">
+              {alerts.map((alert) => (
+                <div
+                  key={alert.id}
+                  onClick={() => setSelectedAlert(alert)}
+                  className={`flex items-start space-x-3 p-3 rounded-lg cursor-pointer ${alert.color}`}
+                >
+                  {alert.icon}
+                  <div>
+                    <p className="font-medium">{alert.type}</p>
+                    <p className="text-sm text-gray-700">{alert.message}</p>
+                    <p className="text-xs text-gray-500 mt-1">{alert.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Anomaly Alert */}
-      <Alert variant="destructive">
-        <AlertTitle>Anomaly Detected</AlertTitle>
-        <AlertDescription>
-          Unusual login pattern detected from <b>IP 192.168.1.45</b> – Multiple
-          failed attempts
-        </AlertDescription>
-      </Alert>
-
-      {/* Audit Logs Table */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Audit Logs</CardTitle>
-          <div className="flex items-center gap-2">
-            <Input placeholder="Search logs..." className="w-56" />
-            <Button variant="outline">CSV</Button>
-            <Button variant="outline">PDF</Button>
-            <Button variant="outline">Trace</Button>
+      {/* Dialog for alert details */}
+      <Dialog
+        open={!!selectedAlert}
+        onOpenChange={() => setSelectedAlert(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedAlert?.type}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="text-gray-700">{selectedAlert?.message}</p>
+            <p className="text-xs text-gray-500">{selectedAlert?.time}</p>
           </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Actor</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Entity</TableHead>
-                <TableHead>Result</TableHead>
-                <TableHead>IP Address</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs.map((log, i) => (
-                <TableRow key={i}>
-                  <TableCell>{log.timestamp}</TableCell>
-                  <TableCell>{log.actor}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{log.role}</Badge>
-                  </TableCell>
-                  <TableCell>{log.action}</TableCell>
-                  <TableCell>{log.entity}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        log.result === "Success" || log.result === "Approved"
-                          ? "success"
-                          : log.result === "Failed"
-                          ? "destructive"
-                          : "secondary"
-                      }
-                    >
-                      {log.result}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{log.ip}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        </DialogContent>
+      </Dialog>
 
-          {/* Pagination */}
-          <div className="flex justify-between items-center mt-4">
-            <p className="text-sm text-muted-foreground">
-              Showing 1 to 4 of 12,847 results
+      {/* Dialog for user details */}
+      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>User Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="font-medium">{selectedUser?.name}</p>
+            <p className="text-sm text-gray-600">{selectedUser?.type}</p>
+            <p className="text-sm text-gray-600">
+              Email: {selectedUser?.email}
             </p>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                Previous
-              </Button>
-              <Button size="sm" className="bg-primary text-white">
-                1
-              </Button>
-              <Button variant="outline" size="sm">
-                2
-              </Button>
-              <Button variant="outline" size="sm">
-                3
-              </Button>
-              <Button variant="outline" size="sm">
-                Next
-              </Button>
-            </div>
+            <p className="text-sm text-gray-600">
+              Phone: {selectedUser?.phone}
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,14 +1,14 @@
 // components/UserColumns.jsx
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import Message from "@/components/common/mesage";
 import EditUser from "../editUser";
 
 export const userColumns = [
   {
-    accessorKey: "id",
-    header: "ID",
+    accessorKey: "designation",
+    header: "Designation",
   },
   {
     accessorKey: "name",
@@ -38,7 +38,11 @@ export const userColumns = [
         <div className="flex space-x-2">
           <EditUser user={user} />
           <Message
-            buttonTag={<Button variant="outline">Delete Account</Button>}
+            buttonTag={
+              <Button variant="outline">
+                <Trash2 />
+              </Button>
+            }
             header="Are you absolutely sure?"
             message="This action cannot be undone. Your account and data will be permanently deleted."
             action={handleDelete}

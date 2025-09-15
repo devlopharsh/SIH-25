@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,7 +8,6 @@ import { Button } from "../ui/button";
 import {
   AlertDialog,
   AlertDialogContent,
-  AlertDialogFooter,
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -24,11 +23,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import toast from "react-hot-toast";
 import { apiCall } from "@/utils/API";
 
 // ✅ Zod Schema
 const formSchema = z.object({
-  workerId: z.string().min(2, "Worker ID is required"),
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Invalid email"),
   phone: z.string().min(10, "Phone must be at least 10 digits"),
@@ -36,15 +42,78 @@ const formSchema = z.object({
   city: z.string().min(2, "City is required"),
   state: z.string().min(2, "State is required"),
   pin: z.string().min(6, "PIN must be 6 digits"),
-  employeeId: z.string().min(2, "Employee ID is required"),
   designation: z.string().min(2, "Designation is required"),
+  assignedAreas: z.string().min(2, "Assigned areas are required"),
+  researchCredentials_qualifications: z.string().optional(),
+  researchCredentials_institutionAffiliation: z.string().optional(),
+  researchCredentials_certificationNumber: z.string().optional(),
 });
 
+// ✅ Dropdown options
+const DESIGNATIONS = [
+  "Field Data Collector",
+  "Senior Field Collector",
+  "Marine Research Scientist",
+  "Senior Marine Researcher",
+  "Research Associate",
+  "Project Coordinator",
+];
+
+// ✅ Common fields
+const commonFields = [
+  { name: "name", label: "Name", placeholder: "Enter full name" },
+  { name: "email", label: "Email", placeholder: "Enter email address" },
+  { name: "phone", label: "Phone", placeholder: "Enter phone number" },
+  { name: "address", label: "Address", placeholder: "Enter address" },
+  { name: "city", label: "City", placeholder: "Enter city" },
+  { name: "state", label: "State", placeholder: "Enter state" },
+  { name: "pin", label: "PIN Code", placeholder: "Enter pin code" },
+  {
+    name: "assignedAreas",
+    label: "Assigned Areas",
+    placeholder: "Comma separated list (e.g. Area1, Area2)",
+  },
+];
+
+// ✅ Tab-specific fields
+const landFields = [
+  {
+    name: "researchCredentials_institutionAffiliation",
+    label: "Institution Affiliation",
+    placeholder: "Enter institution affiliation",
+  },
+  {
+    name: "researchCredentials_certificationNumber",
+    label: "Certification Number",
+    placeholder: "Enter certification number",
+  },
+];
+
+const seaFields = [
+  {
+    name: "researchCredentials_qualifications",
+    label: "Qualifications",
+    placeholder: "Comma separated list (e.g. Degree1, Degree2)",
+  },
+  {
+    name: "researchCredentials_institutionAffiliation",
+    label: "Institution Affiliation",
+    placeholder: "Enter institution affiliation",
+  },
+  {
+    name: "researchCredentials_certificationNumber",
+    label: "Certification Number",
+    placeholder: "Enter certification number",
+  },
+];
+
 const AddUser = () => {
+  const [tabs, setTabs] = useState("Land");
+  const [open, setOpen] = useState(false);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      workerId: "",
       name: "",
       email: "",
       phone: "",
@@ -52,90 +121,99 @@ const AddUser = () => {
       city: "",
       state: "",
       pin: "",
-      employeeId: "",
       designation: "",
+      assignedAreas: "",
+      researchCredentials_qualifications: "",
+      researchCredentials_institutionAffiliation: "",
+      researchCredentials_certificationNumber: "",
     },
   });
 
   const onSubmit = async (data) => {
     try {
-      const response = await apiCall(
-        "worker/create", // 👉 replace with your real endpoint
-        "POST",
-        data
-      );
+      const payload = {
+        ...data,
+        workerType: tabs === "Land" ? "field_collector" : "seagrass_researcher", // ✅ auto-set
+        assignedAreas: data.assignedAreas
+          ? data.assignedAreas.split(",").map((s) => s.trim())
+          : [],
+        researchCredentials: {
+          qualifications: data.researchCredentials_qualifications
+            ? data.researchCredentials_qualifications
+                .split(",")
+                .map((s) => s.trim())
+            : [],
+          institutionAffiliation:
+            data.researchCredentials_institutionAffiliation || "",
+          certificationNumber:
+            data.researchCredentials_certificationNumber || "",
+        },
+      };
 
+      const response = await apiCall("worker/create", "POST", payload);
+      if (response.success === true) {
+        toast.sucess("User Created Successfully!");
+        setOpen(false);
+      } else {
+        toast.error("Something went wrong");
+      }
       console.log("✅ User created successfully:", response);
-      // you can also show a toast or close the modal here
     } catch (error) {
       console.error("❌ Error creating user:", error.message);
-      // show error toast or message
+      toast.error(error.message);
     }
   };
 
+  const activeFields = [
+    ...commonFields,
+    ...(tabs === "Land" ? landFields : seaFields),
+  ];
+
   return (
     <div>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
+      <AlertDialog open={open}>
+        <AlertDialogTrigger
+          asChild
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
           <Button>
             <CirclePlus className="w-5 h-5 mr-2" />
-            Create User
+            Create Worker
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent className="max-w-2xl">
+        <AlertDialogContent className="!max-w-5xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Create a New User</AlertDialogTitle>
+            <AlertDialogTitle className="flex justify-between">
+              <p>Create a New Worker</p>
+              <div className="absolute right-5 flex gap-3">
+                <Button
+                  onClick={() => setTabs("Land")}
+                  variant={tabs === "Land" ? "default" : "ghost"}
+                >
+                  Land Team
+                </Button>
+                <Button
+                  onClick={() => setTabs("Sea")}
+                  variant={tabs === "Sea" ? "default" : "ghost"}
+                >
+                  Sea Team
+                </Button>
+              </div>
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              enter the details of the new user
+              Enter the details of the new worker
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          {/* ✅ Form inside */}
+          {/* Form */}
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="grid grid-cols-2 gap-4 py-4"
             >
-              {[
-                {
-                  name: "workerId",
-                  label: "Worker ID",
-                  placeholder: "Enter worker ID",
-                },
-                { name: "name", label: "Name", placeholder: "Enter full name" },
-                {
-                  name: "email",
-                  label: "Email",
-                  placeholder: "Enter email address",
-                },
-                {
-                  name: "phone",
-                  label: "Phone",
-                  placeholder: "Enter phone number",
-                },
-                {
-                  name: "address",
-                  label: "Address",
-                  placeholder: "Enter address",
-                },
-                { name: "city", label: "City", placeholder: "Enter city" },
-                { name: "state", label: "State", placeholder: "Enter state" },
-                {
-                  name: "pin",
-                  label: "PIN Code",
-                  placeholder: "Enter pin code",
-                },
-                {
-                  name: "employeeId",
-                  label: "Employee ID",
-                  placeholder: "Enter employee ID",
-                },
-                {
-                  name: "designation",
-                  label: "Designation",
-                  placeholder: "Enter designation",
-                },
-              ].map((field) => (
+              {activeFields.map((field) => (
                 <FormField
                   key={field.name}
                   control={form.control}
@@ -144,7 +222,6 @@ const AddUser = () => {
                     <FormItem>
                       <FormLabel>{field.label}</FormLabel>
                       <FormControl>
-                        {/* ✅ Placeholder added */}
                         <Input
                           {...inputField}
                           placeholder={field.placeholder}
@@ -156,9 +233,35 @@ const AddUser = () => {
                 />
               ))}
 
-              {/* Footer takes full width */}
+              {/* ✅ Designation Dropdown */}
+              <FormField
+                control={form.control}
+                name="designation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Designation</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select designation" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {DESIGNATIONS.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Footer */}
               <div className="col-span-2 flex justify-end space-x-2 pt-4">
-                <AlertDialogCancel type="button">Cancel</AlertDialogCancel>
+                <AlertDialogCancel type="button" onClick={()=>{setOpen(false)}}>Cancel</AlertDialogCancel>
                 <Button type="submit">Save</Button>
               </div>
             </form>

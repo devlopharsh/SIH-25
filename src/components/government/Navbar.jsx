@@ -14,6 +14,7 @@ import {
   NavigationMenuList,
   NavigationMenuItem,
 } from "../ui/navigation-menu";
+import { Link } from "react-router-dom";
 
 const Navbar = ({ user }) => {
   return (
@@ -28,7 +29,9 @@ const Navbar = ({ user }) => {
             </a>
           </div>
 
-          <div className="text-xl text-gray-500 font-bold">Government Portal</div>
+          <div className="text-xl text-gray-500 font-bold">
+            Government Portal
+          </div>
         </div>
 
         {/* Profile Dropdown */}
@@ -50,8 +53,13 @@ const Navbar = ({ user }) => {
                 <p className="text-sm font-medium">{user.name}</p>
                 <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <NavLink to="/company/profile">Profile</NavLink>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <NavLink to="/company/settings">Settings</NavLink>
+              </DropdownMenuItem>
               <DropdownMenuItem>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

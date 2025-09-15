@@ -3,7 +3,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CirclePlus } from "lucide-react";
+import { CirclePlus, Pencil } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   AlertDialog,
@@ -39,7 +39,7 @@ const formSchema = z.object({
   designation: z.string().min(2, "Designation is required"),
 });
 
-const EditUser = ({user}) => {
+const EditUser = ({ user }) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -65,7 +65,7 @@ const EditUser = ({user}) => {
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button>
-            Edit Worker
+            <Pencil />
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent className="max-w-2xl">

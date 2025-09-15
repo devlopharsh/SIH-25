@@ -14,16 +14,43 @@ import {
 import { ResponsiveContainer } from "recharts"; // Placeholder for heatmap
 import { UsersTable } from "@/components/Company/userTable/UserTable";
 import { userColumns } from "@/components/Company/userTable/UserColumns";
+import { SearchBar } from "@/components/Company/userTable/SearchBar";
 import AddUser from "@/components/Company/addUser";
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
+
+//utils
+import { apiCall } from "@/utils/API";
 
 export default function DashBoard() {
-  const data = [
-    { id: 1, name: "Harsh Kumar", email: "harsh@example.com", role: "Admin" },
-    { id: 2, name: "Amit Patel", email: "amit@example.com", role: "User" },
-    { id: 3, name: "Pooja Rani", email: "pooja@example.com", role: "Manager" },
-    { id: 4, name: "Ravi Sharma", email: "ravi@example.com", role: "User" },
-  ];
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
+
+  // ✅ Filter data based on search
+  const filteredData = useMemo(() => {
+    return users.filter((row) =>
+      Object.values(row).some((value) =>
+        String(value).toLowerCase().includes(search.toLowerCase())
+      )
+    );
+  }, [users, search]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await apiCall("worker/company-workers", "GET");
+        setUsers(response?.data || []);
+        console.log(response);
+      } catch (err) {
+        setError("Failed to load users");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-8">
       {/* Stats */}
@@ -218,7 +245,8 @@ export default function DashBoard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <UsersTable data={data} columns={userColumns} />
+            <SearchBar value={search} onChange={setSearch} />
+            <UsersTable data={filteredData} columns={userColumns} />
           </CardContent>
         </Card>
       </div>

@@ -1,7 +1,6 @@
 // api.js
 export async function apiCall(url, method = "GET", data = null, headers = {}) {
   try {
-    // ✅ Try to get token (you can adjust based on your login logic)
     const token =
       localStorage.getItem("CompanyToken") ||
       localStorage.getItem("GovernmentToken");
@@ -10,13 +9,20 @@ export async function apiCall(url, method = "GET", data = null, headers = {}) {
       method,
       headers: {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}), // ✅ Add token if available
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,
       },
     };
 
-    if (data) {
+    // ✅ Only attach body if method is NOT GET
+    if (data && method !== "GET") {
       options.body = JSON.stringify(data);
+    }
+
+    // ✅ For GET + query params
+    if (data && method === "GET") {
+      const queryParams = new URLSearchParams(data).toString();
+      url += `?${queryParams}`;
     }
 
     const response = await fetch(import.meta.env.VITE_API_URL + url, options);

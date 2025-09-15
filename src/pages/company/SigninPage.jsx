@@ -45,7 +45,7 @@ const SigninPage = () => {
       setLoading(true);
       console.log("Login attempt:", data);
       const response = await fetch(
-        "https://blue-carbon-server.onrender.com/api/company/login",
+        "https://blue-carbon-server.onrender.com/api/companies/auth/login",
         {
           method: "POST",
           headers: {

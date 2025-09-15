@@ -1,4 +1,4 @@
-import React from "react";
+import React ,  {useState , useEffect }from "react";
 import { NavLink } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Users, FileArchive, LayoutDashboard } from "lucide-react";
@@ -38,7 +38,7 @@ const Navbar = ({ user }) => {
               <Button variant="ghost" className="flex items-center gap-2 px-2">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
+                  <AvatarFallback>{user.name?.charAt(0) || "CD"}</AvatarFallback>
                 </Avatar>
                 <span className="hidden md:inline text-sm font-medium">
                   {user.name}
@@ -50,8 +50,13 @@ const Navbar = ({ user }) => {
                 <p className="text-sm font-medium">{user.name}</p>
                 <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <NavLink to="/company/profile">Profile</NavLink>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem asChild>
+                <NavLink to="/company/settings">Settings</NavLink>
+              </DropdownMenuItem>
               <DropdownMenuItem>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
