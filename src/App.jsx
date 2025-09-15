@@ -15,6 +15,7 @@ import ProtectedGovernmentRoute from "./utils/middlewareGovernment";
 import DashBoard from "./pages/company/Dashboard";
 import Projects from "./pages/company/Projects";
 import AuditLogs from "./pages/company/Auditlogs";
+import GovDashBoard from "./pages/Government/DashBoard";
 
 // Pages
 import LandingPage from "./pages/Landing-page";
@@ -58,8 +59,8 @@ function App() {
             </ProtectedGovernmentRoute>
           }
         >
-          <Route index element={<DashBoard />} /> 
-          <Route path="dashboard" element={<DashBoard />} />{" "}
+          <Route index element={<GovDashBoard />} /> 
+          <Route path="dashboard" element={<GovDashBoard />} />{" "}
           <Route path="auditUsers" element={<DashBoard />} />{" "}
           {/* /government/dashboard */}
         </Route>

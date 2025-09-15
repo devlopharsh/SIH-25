@@ -28,7 +28,7 @@ const Navbar = ({ user }) => {
             </a>
           </div>
 
-          <div className="text-xl text-gray-500 font-bold">Company Portal</div>
+          <div className="text-xl text-gray-500 font-bold">Government Portal</div>
         </div>
 
         {/* Profile Dropdown */}
