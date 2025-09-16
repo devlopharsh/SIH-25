@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { apiCall } from "@/utils/API";
 import DetailsDialog from "@/components/Company/DetailsDialog";
 import { useNavigate, useLocation } from "react-router-dom";
+import BlockChainDetails from "@/components/Company/BlockChainStatus";
 
 export default function Projects() {
   const [requests, setRequests] = useState([]);
@@ -63,6 +64,20 @@ export default function Projects() {
     }
   }
 
+  async function reject(token) {
+    try {
+      const response = await apiCall(`submissions/${token}/reject`, "");
+      if (!response) {
+        toast.error("denied reject request");
+      } else {
+        toast.success("request rejected");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("something went wrong!");
+    }
+  }
+
   useEffect(() => {
     async function fetchSubmissions() {
       try {
@@ -84,12 +99,8 @@ export default function Projects() {
   }, []);
 
   // ✅ Separate approved vs pending requests
-  const approvedRequests = requests.filter(
-    (r) => r.status === "company_approved"
-  );
-  const pendingRequests = requests.filter(
-    (r) => r.status !== "company_approved"
-  );
+  const approvedRequests = requests.filter((r) => r.status === "approved");
+  const pendingRequests = requests.filter((r) => r.status !== "approved");
 
   // ✅ Pagination Logic
   const totalPages = Math.ceil(pendingRequests.length / requestsPerPage);
@@ -174,7 +185,9 @@ export default function Projects() {
                     <DetailsDialog details={a} />
                     <Button
                       variant="positive"
-                      onClick={() => approve(a.submissionId)}
+                      onClick={() => {
+                        approve(a.submissionId);
+                      }}
                     >
                       <CheckCheck />
                       Approve
@@ -182,7 +195,9 @@ export default function Projects() {
                     <Button
                       variant="destructive"
                       className="bg-red-500 hover:bg-red-600"
-                      onClick={() => toast.error(`Rejected ${a.worker?.name}`)}
+                      onClick={() => {
+                        reject(a.submissionId);
+                      }}
                     >
                       <X />
                       Reject
@@ -257,7 +272,10 @@ export default function Projects() {
                     </p>
                   </div>
                 </div>
-                <DetailsDialog details={a} />
+                <div className="flex gap-3">
+                  <BlockChainDetails details={a} />
+                  <DetailsDialog details={a} />
+                </div>
               </div>
             ))
           )}

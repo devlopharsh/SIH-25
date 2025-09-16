@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,44 +9,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AlertCircle, CheckCircle2, Clock, Info } from "lucide-react";
-
-import toast, { Toaster } from "react-hot-toast";
+import { UsersTable } from "@/components/Company/userTable/UserTable";
+import { userColumns } from "@/components/Company/userTable/UserColumns";
+import { SearchBar } from "@/components/Company/userTable/SearchBar";
+import toast from "react-hot-toast";
+import { apiCall } from "@/utils/API";
 
 export default function Audit_Dashboard() {
-  const [viewAllOpen, setViewAllOpen] = useState(false);
-
+  const [users, setUsers] = useState([]);
   const [approvals, setApprovals] = useState([
-    {
-      id: 1,
-      name: "Forest Guardians NGO",
-      type: "Organization registration",
-      email: "contact@fgn.org",
-      phone: "+91 98765 43210",
-    },
-    {
-      id: 2,
-      name: "Green Planet Org",
-      type: "Organization registration",
-      email: "info@gpo.org",
-      phone: "+91 99887 77665",
-    },
-    {
-      id: 3,
-      name: "Eco Warriors",
-      type: "Organization registration",
-      email: "hello@ecow.org",
-      phone: "+91 91234 56789",
-    },
+    // 👇 Fake data for demo — replace with API later
+    { id: 1, name: "Alice Johnson", type: "Worker Request" },
+    { id: 2, name: "Bob Smith", type: "Worker Request" },
   ]);
-
-  const [systemStatus] = useState([
-    { id: 1, name: "Blockchain Network", status: "Operational" },
-    { id: 2, name: "IPFS Storage", status: "Operational" },
-    { id: 3, name: "ML Processing", status: "Degraded" },
-    { id: 4, name: "API Gateway", status: "Operational" },
-    { id: 5, name: "Multi-sig Wallet", status: "Operational" },
-  ]);
-
+  const [viewAllOpen, setViewAllOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const [alerts, setAlerts] = useState([
     {
       id: 1,
@@ -74,8 +51,39 @@ export default function Audit_Dashboard() {
     },
   ]);
 
+  const [systemStatus] = useState([
+    { id: 1, name: "Blockchain Network", status: "Operational" },
+    { id: 2, name: "IPFS Storage", status: "Operational" },
+    { id: 3, name: "ML Processing", status: "Degraded" },
+    { id: 4, name: "API Gateway", status: "Operational" },
+    { id: 5, name: "Multi-sig Wallet", status: "Operational" },
+  ]);
+
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  // ✅ Search filter for users table
+  const filteredData = useMemo(() => {
+    return users.filter((row) =>
+      Object.values(row).some((value) =>
+        String(value).toLowerCase().includes(search.toLowerCase())
+      )
+    );
+  }, [users, search]);
+
+  // ✅ Fetch users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await apiCall("worker/company-workers", "GET");
+        setUsers(response?.data || []);
+        console.log("Fetched users:", response);
+      } catch (err) {
+        toast.error("Failed to load users");
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const handleApprove = (id) => {
     setApprovals((prev) => prev.filter((a) => a.id !== id));
@@ -102,51 +110,14 @@ export default function Audit_Dashboard() {
       <Card className="shadow-md">
         <CardContent className="p-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Pending Approvals</h2>
+            <h2 className="text-lg font-semibold">Users Available</h2>
             <Badge className="bg-yellow-100 text-yellow-800">
-              {approvals.length} pending
+              {users.length} users
             </Badge>
           </div>
-          <div className="space-y-4">
-            {approvals.map((approval) => (
-              <div
-                key={approval.id}
-                className="flex items-center justify-between border rounded-lg p-3 cursor-pointer"
-                onClick={() => setSelectedUser(approval)}
-              >
-                <div className="flex items-center space-x-3">
-                  <img
-                    src="https://randomuser.me/api/portraits/women/44.jpg"
-                    alt="avatar"
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div>
-                    <p className="font-medium">{approval.name}</p>
-                    <p className="text-sm text-gray-500">{approval.type}</p>
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleApprove(approval.id);
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4"
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleReject(approval.id);
-                    }}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4"
-                  >
-                    Reject
-                  </Button>
-                </div>
-              </div>
-            ))}
+          <div className="flex flex-col gap-4">
+            <SearchBar value={search} onChange={setSearch} />
+            <UsersTable data={filteredData} columns={userColumns} />
           </div>
           <div className="text-center mt-4">
             <button
@@ -158,40 +129,6 @@ export default function Audit_Dashboard() {
           </div>
         </CardContent>
       </Card>
-      <Dialog open={viewAllOpen} onOpenChange={() => setViewAllOpen(false)}>
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle>All Pending Approvals</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {approvals.map((approval) => (
-              <div
-                key={approval.id}
-                className="flex items-center justify-between border rounded-lg p-3"
-              >
-                <div>
-                  <p className="font-medium">{approval.name}</p>
-                  <p className="text-sm text-gray-500">{approval.type}</p>
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    onClick={() => handleApprove(approval.id)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4"
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    onClick={() => handleReject(approval.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4"
-                  >
-                    Reject
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* System Status + Alerts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -212,7 +149,7 @@ export default function Audit_Dashboard() {
                     <span>{sys.name}</span>
                   </div>
                   <span
-                    className={`$ {
+                    className={`${
                       sys.status === "Operational"
                         ? "text-green-600"
                         : sys.status === "Degraded"
@@ -260,7 +197,7 @@ export default function Audit_Dashboard() {
         </Card>
       </div>
 
-      {/* Dialog for alert details */}
+      {/* Alert Details Dialog */}
       <Dialog
         open={!!selectedAlert}
         onOpenChange={() => setSelectedAlert(null)}
@@ -276,21 +213,15 @@ export default function Audit_Dashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog for user details */}
+      {/* User Details Dialog with Table */}
       <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>User Details</DialogTitle>
           </DialogHeader>
-          <div className="space-y-2">
-            <p className="font-medium">{selectedUser?.name}</p>
-            <p className="text-sm text-gray-600">{selectedUser?.type}</p>
-            <p className="text-sm text-gray-600">
-              Email: {selectedUser?.email}
-            </p>
-            <p className="text-sm text-gray-600">
-              Phone: {selectedUser?.phone}
-            </p>
+          <div className="flex flex-col gap-4">
+            <SearchBar value={search} onChange={setSearch} />
+            <UsersTable data={filteredData} columns={userColumns} />
           </div>
         </DialogContent>
       </Dialog>

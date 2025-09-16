@@ -14,6 +14,7 @@ import {
 import { ResponsiveContainer } from "recharts"; // Placeholder for heatmap
 import { UsersTable } from "@/components/Company/userTable/UserTable";
 import { userColumns } from "@/components/Company/userTable/UserColumns";
+import { Columns } from "@/components/Company/userTable/UserColumns";
 import { SearchBar } from "@/components/Company/userTable/SearchBar";
 import AddUser from "@/components/Company/addUser";
 import React, { useState, useEffect, useMemo } from "react";
@@ -246,7 +247,7 @@ export default function DashBoard() {
           </CardHeader>
           <CardContent>
             <SearchBar value={search} onChange={setSearch} />
-            <UsersTable data={filteredData} columns={userColumns} />
+            <UsersTable data={filteredData} columns={Columns} />
           </CardContent>
         </Card>
       </div>
