@@ -21,14 +21,13 @@ const Navbar = ({ user }) => {
     <nav className="border-b fixed w-full">
       {/* Top bar */}
       <div className="flex items-center justify-between bg-background px-6 py-3 z-90">
-        <div className="flex items-center gap-10">
+        <div className="flex items-center gap-15">
           {/* Logo */}
           <div className="text-xl font-semibold">
             <a href="/">
               <img src="/Logo.svg" alt="Logo" width={150} />
             </a>
           </div>
-
           <div className="text-xl text-gray-500 font-bold">
             Government Portal
           </div>

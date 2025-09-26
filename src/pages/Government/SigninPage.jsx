@@ -45,16 +45,18 @@ const SigninGovPage = () => {
     try {
       setLoading(true);
       console.log("Login attempt:", data);
-      const response = await fetch(
-        "https://blue-carbon-server.onrender.com/api/gov/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      // const response = await fetch(
+      //   "https://blue-carbon-server.onrender.com/api/gov/auth/login",
+      //   {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify(data),
+      //   }
+      // );
+
+      const response= await apiCall("gov/auth/login","Post" ,data);
 
       if (!response.ok) {
         const errorData = await response.json();

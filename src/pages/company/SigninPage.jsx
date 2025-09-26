@@ -17,6 +17,7 @@ import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import ForgetPasswordDialog from "@/components/common/forgot-password";
+import { apiCall } from "@/utils/API";
 
 // ✅ Zod Schema
 const loginSchema = z.object({
@@ -44,41 +45,29 @@ const SigninPage = () => {
     try {
       setLoading(true);
       console.log("Login attempt:", data);
-      const response = await fetch(
-        "https://blue-carbon-server.onrender.com/api/companies/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("❌ Login failed:", errorData);
-        toast.error(errorData.message);
-        setLoading(false);
-      } else {
-        const resData = await response.json();
-        //save in localstorage
+      // Call your apiCall wrapper
+      const resData = await apiCall("companies/auth/login", "POST", data);
+
+      // Save token if present
+      if (resData.token) {
         localStorage.setItem("CompanyToken", resData.token);
 
-        //cookies saving
         Cookies.set("CompanyToken", resData.token, {
           expires: 7, // days until expiration
           secure: true, // only sent over HTTPS
           sameSite: "Strict", // prevent CSRF
         });
-
-        console.log("✅ Login successfully:", resData);
-        toast.success("Login successfully!");
-        navigate("/company/");
       }
+
+      console.log("✅ Login successfully:", resData);
+      toast.success("Login successfully!");
+      navigate("/company/");
     } catch (error) {
-      console.log("error in login:", error);
-      toast.error("Error while logging in");
+      console.error("❌ Login failed:", error.message);
+      toast.error(error.message || "Error while logging in");
+    } finally {
+      setLoading(false);
     }
   };
 

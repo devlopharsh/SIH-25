@@ -20,7 +20,7 @@ const Navbar = ({ user }) => {
     <nav className="border-b fixed w-full">
       {/* Top bar */}
       <div className="flex items-center justify-between bg-background px-6 py-3 z-90">
-        <div className="flex items-center gap-10">
+        <div className="flex items-center gap-15">
           {/* Logo */}
           <div className="text-xl font-semibold">
             <a href="/">
