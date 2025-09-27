@@ -27,6 +27,7 @@ import Reset_Password from "./pages/Government/Reset_Password";
 import SigninGovPage from "./pages/Government/SigninPage";
 import Layout from "./pages/Government/layout";
 import Profile from "./pages/company/Profile";
+import Company_verify from "./pages/Government/CompanyVerify";
 
 function App() {
   const sampleUser = {
@@ -51,7 +52,10 @@ function App() {
           path="/government/reset-password/:token"
           element={<Reset_Password />}
         />
-
+        <Route
+          path="/government/Verify/:token"
+          element={<Company_verify />}
+        />
         {/* protected Government Routes */}
         <Route
           path="/government"
@@ -61,7 +65,7 @@ function App() {
             </ProtectedGovernmentRoute>
           }
         >
-          <Route index element={<GovDashBoard />} /> 
+          <Route index element={<GovDashBoard />} />
           <Route path="dashboard" element={<GovDashBoard />} />{" "}
           <Route path="auditUsers" element={<Audit_Dashboard />} />{" "}
           {/* /government/dashboard */}

@@ -11,6 +11,15 @@ import {
   FolderGit,
   Globe2,
 } from "lucide-react";
+import {
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  ZAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 import { ResponsiveContainer } from "recharts"; // Placeholder for heatmap
 import { UsersTable } from "@/components/Company/userTable/UserTable";
 import { userColumns } from "@/components/Company/userTable/UserColumns";
@@ -170,8 +179,32 @@ export default function DashBoard() {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] flex items-center justify-center text-muted-foreground border rounded-md">
-              Heatmap Chart Placeholder
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <ScatterChart>
+                  <CartesianGrid />
+                  <XAxis type="number" dataKey="x" name="Longitude" />
+                  <YAxis type="number" dataKey="y" name="Latitude" />
+                  <ZAxis
+                    type="number"
+                    dataKey="z"
+                    range={[50, 500]}
+                    name="Credits"
+                  />
+                  <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+                  <Scatter
+                    name="Projects"
+                    data={[
+                      { x: 10, y: 20, z: 200 }, // Region A
+                      { x: 30, y: 50, z: 500 }, // Region B
+                      { x: 50, y: 80, z: 100 }, // Region C
+                      { x: 70, y: 40, z: 300 }, // Region D
+                      { x: 90, y: 60, z: 250 }, // Region E
+                    ]}
+                    fill="#3b82f6"
+                  />
+                </ScatterChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>

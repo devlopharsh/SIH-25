@@ -16,6 +16,7 @@ import { Shield, CheckCircle, User } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiCall } from "@/utils/API";
 
 const otpSchema = z.object({
   otp: z
@@ -95,16 +96,10 @@ const SignupPage = () => {
     try {
       setDisabled(true);
       console.log(emailed, data.otp);
-      const response = await fetch(
-        "https://blue-carbon-server.onrender.com/api/company/verify-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: emailed, otp: data.otp }),
-        }
-      );
+      const response = await apiCall("company/verify-otp", "POST", {
+        email: emailed,
+        otp: data.otp,
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -137,12 +132,11 @@ const SignupPage = () => {
       console.log("Email stored in state:", data.email);
 
       // Send POST request with fetch
-      const response = await fetch(
-        "https://blue-carbon-server.onrender.com/api/company/send-otp",
-        {
-          method: "POST",
-          body: formData, // fetch handles multipart automatically
-        }
+      const response = await apiCall(
+        "company/send-otp",
+        "POST",
+        formData,
+        true
       );
 
       if (!response.ok) {
@@ -543,7 +537,15 @@ const SignupPage = () => {
                         <span>Create Account</span>
                       </Button>
                     </form>
-                    <p className="text-xs mt-5">Already a user <a href="/company/signin" className="text-blue-600 underline">Login</a></p>
+                    <p className="text-xs mt-5">
+                      Already a user{" "}
+                      <a
+                        href="/company/signin"
+                        className="text-blue-600 underline"
+                      >
+                        Login
+                      </a>
+                    </p>
                   </div>
                 </div>
               ) : (
