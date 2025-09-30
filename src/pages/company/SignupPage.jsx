@@ -133,7 +133,7 @@ const SignupPage = () => {
 
       // Send POST request with fetch
       const response = await apiCall(
-        "company/send-otp",
+        "companies/send-otp",
         "POST",
         formData,
         true
